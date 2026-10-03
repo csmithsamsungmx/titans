@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galaxy Ultra Titans | Black Friday Incentive</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #050505;
+      color: #fff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 380px;
+      background: linear-gradient(to bottom, rgba(115,115,115,.12), transparent);
+      pointer-events: none;
+    }
+    .header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 18px 32px;
+      background: #000;
+      border-bottom: 1px solid #262626;
+    }
+    .brand { display:flex; align-items:center; gap:16px; }
+    .jb {
+      background:#ffcc00;
+      color:#000;
+      font-weight:1000;
+      font-style:italic;
+      font-size:30px;
+      letter-spacing:-2px;
+      padding:5px 12px;
+      border-radius:4px;
+      box-shadow:0 0 18px rgba(255,204,0,.35);
+    }
+    .samsung { font-size:22px; font-weight:800; letter-spacing:.16em; }
+    .cross { color:#737373; font-size:24px; }
+    .header-title { text-align:right; }
+    .header-title h1 { margin:0; font-size:24px; letter-spacing:.12em; text-transform:uppercase; }
+    .header-title h1 span { color:#a3a3a3; }
+    .header-title p { margin:5px 0 0; color:#737373; font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+    main { position:relative; z-index:1; width:min(1180px, 100%); margin:0 auto; padding:42px 20px 70px; }
+    .hero { text-align:center; }
+    .hero h2 {
+      margin: 10px 0 18px;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: .95;
+      font-weight: 1000;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color:#d4d4d8;
+      text-shadow:0 10px 40px rgba(255,255,255,.06);
+    }
+    .legend { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; align-items:center; }
+    .pill {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px; border-radius:999px;
+      background:#171717; border:1px solid #262626;
+      color:#a3a3a3; font-size:12px; font-weight:800;
+    }
+    .dot { width:8px; height:8px; border-radius:50%; }
+    .blue { background:#3b82f6; }
+    .green { background:#22c55e; }
+    button {
+      font: inherit;
+      cursor:pointer;
+      color:#fff;
+      background:#262626;
+      border:1px solid #525252;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:12px;
+      font-weight:800;
+    }
+    button:hover { background:#404040; }
+    .podium {
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:0;
+      margin:72px auto 42px;
+      max-width:900px;
+    }
+    .podium-card { flex:1; max-width:240px; text-align:center; }
+    .podium-card.first { max-width:285px; margin:0 -14px; z-index:2; }
+    .podium-icon { font-size:44px; margin-bottom:8px; filter:drop-shadow(0 0 12px currentColor); }
+    .podium-card.first .podium-icon { font-size:60px; }
+    .store-name { min-height:42px; display:flex; align-items:flex-end; justify-content:center; padding:0 10px 10px; font-weight:900; }
+    .percent { font-size:38px; line-height:1; font-weight:1000; margin-bottom:8px; color:#d4d4d8; }
+    .units { color:#737373; font-size:11px; text-transform:uppercase; letter-spacing:.13em; margin-bottom:14px; }
+    .plinth {
+      display:flex; align-items:flex-start; justify-content:center;
+      padding-top:20px; border-radius:12px 12px 0 0;
+      border-top:2px solid rgba(255,255,255,.2);
+      box-shadow:0 20px 50px rgba(0,0,0,.45);
+      font-size:64px; font-weight:1000; color:rgba(0,0,0,.3);
+    }
+    .first .plinth { height:255px; background:linear-gradient(to top,#8a6b20,#ffd700,#fff0a0); }
+    .second .plinth { height:190px; background:linear-gradient(to top,#404040,#737373,#d4d4d8); }
+    .third .plinth { height:155px; background:linear-gradient(to top,#451a03,#b45309,#d97706); }
+    .list { max-width:900px; margin:0 auto; border:1px solid #262626; background:rgba(23,23,23,.84); border-radius:14px; overflow:hidden; }
+    .row { display:grid; grid-template-columns:70px minmax(170px,1fr) minmax(330px,1.7fr); align-items:center; gap:20px; padding:22px; border-bottom:1px solid rgba(64,64,64,.55); }
+    .row:last-child { border-bottom:0; }
+    .rank { color:#737373; font-size:22px; font-weight:1000; text-align:center; }
+    .row-name { font-weight:900; }
+    .progress-meta { display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; color:#a3a3a3; }
+    .progress-meta strong { color:#d4d4d8; }
+    .track { position:relative; height:12px; border-radius:999px; background:#262626; }
+    .fill { height:100%; border-radius:999px; background:#737373; transition:width .45s ease; }
+    .marker { position:absolute; top:-5px; bottom:-5px; width:5px; background:#facc15; border:1px solid #000; border-radius:2px; transform:translateX(-50%); box-shadow:0 0 6px #facc15; }
+    .labels { position:relative; display:flex; justify-content:space-between; min-height:20px; margin-top:5px; color:#737373; font-size:10px; }
+    .cut-label { position:absolute; transform:translateX(-50%); color:#eab308; font-weight:800; white-space:nowrap; }
+    .empty { text-align:center; color:#737373; padding:60px 20px; }
+    .modal-wrap { position:fixed; inset:0; z-index:10; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(0,0,0,.84); backdrop-filter:blur(8px); }
+    .modal-wrap.open { display:flex; }
+    .modal { width:min(560px,100%); max-height:82vh; display:flex; flex-direction:column; background:#171717; border:1px solid #262626; border-radius:16px; padding:24px; box-shadow:0 25px 80px rgba(0,0,0,.65); }
+    .modal h3 { margin:0 0 18px; font-size:22px; }
+    .editor { overflow:auto; display:grid; gap:10px; padding-right:4px; }
+    .edit-row { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:13px; background:#262626; border-radius:10px; }
+    .edit-row span { font-size:14px; font-weight:700; }
+    input { width:90px; padding:8px 10px; border:1px solid #525252; border-radius:8px; background:#0a0a0a; color:#fff; text-align:center; font:inherit; }
+    .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:18px; border-top:1px solid #262626; }
+    .save { background:#2563eb; border-color:#2563eb; border-radius:8px; padding:10px 18px; }
+    .save:hover { background:#3b82f6; }
+    .cancel { border:0; background:transparent; color:#a3a3a3; }
+    @media (max-width:760px) {
+      .header { flex-direction:column; text-align:center; padding:16px; }
+      .header-title { text-align:center; }
+      .podium { align-items:flex-end; margin-top:48px; }
+      .podium-card.first { margin:0 -6px; }
+      .store-name { font-size:11px; min-height:58px; }
+      .percent { font-size:26px; }
+      .podium-icon { font-size:32px; }
+      .podium-card.first .podium-icon { font-size:42px; }
+      .first .plinth { height:180px; }
+      .second .plinth { height:135px; }
+      .third .plinth { height:110px; }
+      .plinth { font-size:46px; }
+      .row { grid-template-columns:48px 1fr; gap:10px; padding:16px; }
+      .progress { grid-column:1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="jb">JB</div>
+      <div class="cross">×</div>
+      <div class="samsung">SAMSUNG</div>
+    </div>
+    <div class="header-title">
+      <h1>Black Friday <span>Incentive</span></h1>
+      <p>Live % Leaderboard</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Galaxy Ultra Titans</h2>
+      <div class="legend">
+        <span class="pill"><span class="dot blue"></span> Cut-in Met</span>
+        <span class="pill"><span class="dot green"></span> Target Reached</span>
+        <button id="editButton">✎ Update Sales</button>
+      </div>
+    </section>
+
+    <section id="podium" class="podium"></section>
+    <section id="rankList" class="list"></section>
+  </main>
+
+  <div id="modalWrap" class="modal-wrap" aria-hidden="true">
+    <div class="modal">
+      <h3>Update Sales Data</h3>
+      <div id="editor" class="editor"></div>
+      <div class="actions">
+        <button id="cancelButton" class="cancel">Cancel</button>
+        <button id="saveButton" class="save">Save Updates</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultData = [
+      { id: 11, name: "JB HIFI Malaga (Titan)", sales: 0, cutIn: 186, target: 203 },
+      { id: 12, name: "JB Hifi Osborne Park (Titan)", sales: 0, cutIn: 194, target: 211 }
+    ];
+
+    let data = JSON.parse(localStorage.getItem('titans-sales') || 'null') || defaultData;
+    let draft = [];
+
+    const podiumEl = document.getElementById('podium');
+    const rankListEl = document.getElementById('rankList');
+    const modalWrap = document.getElementById('modalWrap');
+    const editor = document.getElementById('editor');
+
+    const percent = item => item.target ? (item.sales / item.target) * 100 : 0;
+    const statusColor = item => item.sales >= item.target ? '#4ade80' : item.sales >= item.cutIn ? '#60a5fa' : '#d4d4d8';
+
+    function sortedData() {
+      return [...data].sort((a,b) => {
+        const diff = percent(b) - percent(a);
+        return diff !== 0 ? diff : b.sales - a.sales;
+      });
+    }
+
+    function podiumCard(item, place) {
+      const classes = ['first','second','third'];
+      const icons = ['🏆','🥈','🥉'];
+      return `
+        <article class="podium-card ${classes[place-1]}">
+          <div class="podium-icon">${icons[place-1]}</div>
+          <div class="store-name">${item.name}</div>
+          <div class="percent" style="color:${statusColor(item)}">${percent(item).toFixed(1)}%</div>
+          <div class="units">${item.sales} / ${item.target} Units</div>
+          <div class="plinth">${place}</div>
+        </article>`;
+    }
+
+    function progress(item) {
+      const salesPct = Math.min(percent(item),100);
+      const cutPct = Math.min((item.cutIn/item.target)*100,100);
+      const fillColor = item.sales >= item.target ? '#22c55e' : item.sales >= item.cutIn ? '#3b82f6' : '#737373';
+      return `
+        <div class="progress">
+          <div class="progress-meta"><span>Sales: ${item.sales}</span><strong style="color:${statusColor(item)}">${percent(item).toFixed(1)}%</strong></div>
+          <div class="track">
+            <div class="fill" style="width:${salesPct}%;background:${fillColor}"></div>
+            <div class="marker" style="left:${cutPct}%" title="Cut-in: ${item.cutIn}"></div>
+          </div>
+          <div class="labels">
+            <span>0</span>
+            <span class="cut-label" style="left:${cutPct}%">Cut-in (${item.cutIn})</span>
+            <span>Target (${item.target})</span>
+          </div>
+        </div>`;
+    }
+
+    function render() {
+      const sorted = sortedData();
+      const top = sorted.slice(0,3);
+      const rest = sorted.slice(3);
+
+      podiumEl.innerHTML = top.map((item,index) => podiumCard(item,index+1)).join('');
+      if (!rest.length) {
+        rankListEl.innerHTML = sorted.length <= 3 ? '' : '<div class="empty">No additional stores.</div>';
+        rankListEl.style.display = 'none';
+      } else {
+        rankListEl.style.display = 'block';
+        rankListEl.innerHTML = rest.map((item,index) => `
+          <div class="row">
+            <div class="rank">#${index+4}</div>
+            <div class="row-name">${item.name}</div>
+            ${progress(item)}
+          </div>`).join('');
+      }
+    }
+
+    function openEditor() {
+      draft = data.map(item => ({...item}));
+      editor.innerHTML = draft.map(item => `
+        <label class="edit-row">
+          <span>${item.name}</span>
+          <input type="number" min="0" value="${item.sales}" data-id="${item.id}" />
+        </label>`).join('');
+      modalWrap.classList.add('open');
+      modalWrap.setAttribute('aria-hidden','false');
+    }
+
+    function closeEditor() {
+      modalWrap.classList.remove('open');
+      modalWrap.setAttribute('aria-hidden','true');
+    }
+
+    document.getElementById('editButton').addEventListener('click', openEditor);
+    document.getElementById('cancelButton').addEventListener('click', closeEditor);
+    document.getElementById('saveButton').addEventListener('click', () => {
+      editor.querySelectorAll('input').forEach(input => {
+        const item = draft.find(x => x.id === Number(input.dataset.id));
+        if (item) item.sales = Math.max(0, Number(input.value) || 0);
+      });
+      data = draft;
+      localStorage.setItem('titans-sales', JSON.stringify(data));
+      closeEditor();
+      render();
+    });
+    modalWrap.addEventListener('click', e => { if (e.target === modalWrap) closeEditor(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditor(); });
+
+    render();
+  </script>
+</body>
+</html>
