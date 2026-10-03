@@ -172,39 +172,23 @@
       <div class="legend">
         <span class="pill"><span class="dot blue"></span> Cut-in Met</span>
         <span class="pill"><span class="dot green"></span> Target Reached</span>
-        <button id="editButton">✎ Update Sales</button>
+        <button id="refreshButton">↻ Refresh</button>
       </div>
     </section>
 
+    <nav id="groups" class="legend" aria-label="Leaderboard groups" style="margin-top:24px"></nav><p id="syncStatus" role="status" style="text-align:center;color:#a3a3a3;font-size:13px"></p>
     <section id="podium" class="podium"></section>
     <section id="rankList" class="list"></section>
   </main>
 
-  <div id="modalWrap" class="modal-wrap" aria-hidden="true">
-    <div class="modal">
-      <h3>Update Sales Data</h3>
-      <div id="editor" class="editor"></div>
-      <div class="actions">
-        <button id="cancelButton" class="cancel">Cancel</button>
-        <button id="saveButton" class="save">Save Updates</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const defaultData = [
-      { id: 11, name: "JB HIFI Malaga (Titan)", sales: 20, cutIn: 186, target: 203 },
-      { id: 12, name: "JB Hifi Osborne Park (Titan)", sales: 0, cutIn: 194, target: 211 }
-    ];
-
-    let data = JSON.parse(localStorage.getItem('titans-sales') || 'null') || defaultData;
-    let draft = [];
-
+    const initialGroups = [{"id":"group1","name":"Galaxy Ultra Titans","stores":[{"id":100,"name":"JB HIFI Malaga (Titan)","cutIn":186,"target":203,"sales":null},{"id":101,"name":"JB Hifi Osborne Park (Titan)","cutIn":194,"target":211,"sales":null}]},{"id":"group2","name":"Group 2 — Large Volume","stores":[{"id":200,"name":"JB HIFI Cannington","cutIn":147,"target":161,"sales":null},{"id":201,"name":"JB HIFI Carousel","cutIn":127,"target":138,"sales":null},{"id":202,"name":"JB HIFI Cockburn","cutIn":136,"target":149,"sales":null},{"id":203,"name":"JB HIFI Joondalup","cutIn":155,"target":169,"sales":null},{"id":204,"name":"JB HIFI Rockingham","cutIn":140,"target":152,"sales":null}]},{"id":"group3","name":"Group 3 — Medium Volume","stores":[{"id":300,"name":"JB HIFI Armadale","cutIn":85,"target":92,"sales":null},{"id":301,"name":"JB HIFI Belmont Forum","cutIn":106,"target":115,"sales":null},{"id":302,"name":"JB HIFI Booragoon","cutIn":88,"target":96,"sales":null},{"id":303,"name":"JB HIFI Bunbury","cutIn":105,"target":114,"sales":null},{"id":304,"name":"JB HIFI Clarkson","cutIn":76,"target":83,"sales":null},{"id":305,"name":"JB HIFI Forrest Chase","cutIn":117,"target":127,"sales":null},{"id":306,"name":"JB HIFI Karrinyup","cutIn":85,"target":92,"sales":null},{"id":307,"name":"JB HIFI Midland","cutIn":92,"target":101,"sales":null},{"id":308,"name":"JB HIFI Midland Gate","cutIn":94,"target":102,"sales":null},{"id":309,"name":"JB HIFI Myaree","cutIn":112,"target":122,"sales":null}]},{"id":"group4","name":"Group 4 — Small Volume","stores":[{"id":400,"name":"JB HIFI ALBANY","cutIn":34,"target":37,"sales":null},{"id":401,"name":"JB HIFI Claremont","cutIn":25,"target":28,"sales":null},{"id":402,"name":"JB HIFI Home Joondalup","cutIn":62,"target":67,"sales":null},{"id":403,"name":"JB HIFI Mandurah","cutIn":70,"target":77,"sales":null},{"id":404,"name":"JB HIFI Mandurah Forum","cutIn":74,"target":80,"sales":null},{"id":405,"name":"JB HiFi Perth International Airport","cutIn":19,"target":20,"sales":null},{"id":406,"name":"JB HIFI Whitfords","cutIn":63,"target":68,"sales":null}]}];
+    let groups = initialGroups, activeGroup = 'group1', data = [];
     const podiumEl = document.getElementById('podium');
     const rankListEl = document.getElementById('rankList');
-    const modalWrap = document.getElementById('modalWrap');
-    const editor = document.getElementById('editor');
-
+    const statusEl = document.getElementById('syncStatus');
+    let endpoint = '', loading = false;
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const percent = item => item.target ? (item.sales / item.target) * 100 : 0;
     const statusColor = item => item.sales >= item.target ? '#4ade80' : item.sales >= item.cutIn ? '#60a5fa' : '#d4d4d8';
 
@@ -221,7 +205,7 @@
       return `
         <article class="podium-card ${classes[place-1]}">
           <div class="podium-icon">${icons[place-1]}</div>
-          <div class="store-name">${item.name}</div>
+          <div class="store-name">${escapeHtml(item.name)}</div>
           <div class="percent" style="color:${statusColor(item)}">${percent(item).toFixed(1)}%</div>
           <div class="units">${item.sales} / ${item.target} Units</div>
           <div class="plinth">${place}</div>
@@ -247,58 +231,86 @@
         </div>`;
     }
 
+
     function render() {
+      const group = groups.find(g => g.id === activeGroup) || groups[0];
+      data = group.stores.filter(s => s.sales !== null);
+      document.querySelector('.hero h2').textContent = group.name;
+      document.getElementById('groups').replaceChildren(...groups.map(g => {
+        const b = document.createElement('button');
+        b.textContent = g.name;
+        b.setAttribute('aria-pressed', String(g.id === group.id));
+        b.style.background = g.id === group.id ? '#2563eb' : '#262626';
+        b.onclick = () => { activeGroup = g.id; render(); };
+        return b;
+      }));
       const sorted = sortedData();
-      const top = sorted.slice(0,3);
-      const rest = sorted.slice(3);
-
-      podiumEl.innerHTML = top.map((item,index) => podiumCard(item,index+1)).join('');
-      if (!rest.length) {
-        rankListEl.innerHTML = sorted.length <= 3 ? '' : '<div class="empty">No additional stores.</div>';
-        rankListEl.style.display = 'none';
-      } else {
-        rankListEl.style.display = 'block';
-        rankListEl.innerHTML = rest.map((item,index) => `
-          <div class="row">
-            <div class="rank">#${index+4}</div>
-            <div class="row-name">${item.name}</div>
-            ${progress(item)}
-          </div>`).join('');
+      podiumEl.innerHTML = sorted.slice(0,3).map((item,index) => podiumCard(item,index+1)).join('');
+      const ranked = sorted.slice(3).map((item,index) => '<div class="row"><div class="rank">#'+(index+4)+'</div><div class="row-name">'+escapeHtml(item.name)+'</div>'+progress(item)+'</div>').join('');
+      const pending = group.stores.filter(s => s.sales === null).map(item => '<div class="row"><div class="rank">—</div><div class="row-name">'+escapeHtml(item.name)+'</div><div class="progress">Awaiting sales · Cut-in '+item.cutIn+' · Target '+item.target+'</div></div>').join('');
+      rankListEl.innerHTML = ranked + pending;
+      rankListEl.style.display = ranked || pending ? 'block' : 'none';
+    }
+    function validate(payload) {
+      if (!payload || !Array.isArray(payload.groups) || !payload.groups.length) throw new Error('Invalid response');
+      const ids = new Set();
+      for (const g of payload.groups) {
+        if (typeof g.id !== 'string' || ids.has(g.id) || typeof g.name !== 'string' || !Array.isArray(g.stores)) throw new Error('Invalid groups');
+        ids.add(g.id);
+        for (const s of g.stores) {
+          if (typeof s.name !== 'string' || !Number.isFinite(s.target) || s.target <= 0 || !Number.isFinite(s.cutIn) || s.cutIn < 0 || (s.sales !== null && (!Number.isInteger(s.sales) || s.sales < 0))) throw new Error('Invalid sales');
+        }
       }
+      return payload;
     }
-
-    function openEditor() {
-      draft = data.map(item => ({...item}));
-      editor.innerHTML = draft.map(item => `
-        <label class="edit-row">
-          <span>${item.name}</span>
-          <input type="number" min="0" value="${item.sales}" data-id="${item.id}" />
-        </label>`).join('');
-      modalWrap.classList.add('open');
-      modalWrap.setAttribute('aria-hidden','false');
-    }
-
-    function closeEditor() {
-      modalWrap.classList.remove('open');
-      modalWrap.setAttribute('aria-hidden','true');
-    }
-
-    document.getElementById('editButton').addEventListener('click', openEditor);
-    document.getElementById('cancelButton').addEventListener('click', closeEditor);
-    document.getElementById('saveButton').addEventListener('click', () => {
-      editor.querySelectorAll('input').forEach(input => {
-        const item = draft.find(x => x.id === Number(input.dataset.id));
-        if (item) item.sales = Math.max(0, Number(input.value) || 0);
+    function requestData() {
+      if (window.google && google.script && google.script.run) {
+        return new Promise((resolve,reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getLeaderboard());
+      }
+      return new Promise((resolve,reject) => {
+        const name = 'titansCallback_' + Date.now();
+        const script = document.createElement('script');
+        const timer = setTimeout(() => finish(new Error('Request timed out')), 20000);
+        function finish(error,payload) {
+          clearTimeout(timer); script.remove(); delete window[name];
+          error ? reject(error) : resolve(payload);
+        }
+        window[name] = payload => finish(null,payload);
+        script.onerror = () => finish(new Error('Connection failed'));
+        const url = new URL(endpoint);
+        if (url.origin !== 'https://script.google.com' || !/^\/macros\/s\/[\w-]+\/exec$/.test(url.pathname)) { finish(new Error('Invalid endpoint')); return; }
+        url.searchParams.set('callback',name); url.searchParams.set('_',String(Date.now()));
+        script.src = url.href; document.head.appendChild(script);
       });
-      data = draft;
-      localStorage.setItem('titans-sales', JSON.stringify(data));
-      closeEditor();
+    }
+    async function refresh() {
+      if (loading) return;
+      if (!endpoint && !(window.google && google.script && google.script.run)) {
+        statusEl.textContent = 'Setup pending — Google Sheets syncing is not active yet. Sales have not been loaded.';
+        return;
+      }
+      loading = true;
+      const button = document.getElementById('refreshButton');
+      button.disabled = true;
+      statusEl.textContent = 'Checking Google Sheets…';
+      try {
+        const payload = validate(await requestData());
+        groups = payload.groups; render();
+        statusEl.textContent = 'Live from Google Sheets · Checked ' + new Date().toLocaleTimeString() + ' · Refreshes every 60 seconds';
+      } catch (error) {
+        statusEl.textContent = 'Could not refresh Google Sheets. Displayed figures may be out of date. Try Refresh.';
+      } finally { loading = false; button.disabled = false; }
+    }
+    async function start() {
       render();
-    });
-    modalWrap.addEventListener('click', e => { if (e.target === modalWrap) closeEditor(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditor(); });
+      try { const config = await fetch('./config.json', {cache:'no-store'}).then(r => {if (!r.ok) throw new Error(); return r.json();}); endpoint = config.appsScriptUrl || ''; } catch (_) {}
+      await refresh();
+      setInterval(() => { if (!document.hidden) refresh(); },60000);
+      document.addEventListener('visibilitychange',() => {if (!document.hidden) refresh();});
+    }
+    document.getElementById('refreshButton').onclick = refresh;
+    start();
 
-    render();
   </script>
 </body>
 </html>
